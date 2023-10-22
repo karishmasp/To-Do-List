@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="index.css">
+    <title>To Do List</title>
+</head>
+<body>
+
+<nav class="navbar navbar-inverse">
+    <div class="container">
+        <div class="navbar-header">
+            <img src="img/to_do.PNG" alt="logo" width="50px" height="50px">
+            <a class="navbar-brand" href="index.html" id="logo">To do</a>
+        </div>
+    </div>
+</nav>
+
+<div id="banner_image">
+    <form>
+        <div class="form-group row">
+            <center>
+                <div class="center-input">
+                    <input type="text" class="form-control" id="add_task" placeholder="Add Task">
+                    <p>&nbsp;</p>
+                    <button class="btn btn-primary" type="button" onclick="addingTask()" id="bt">Add</button>
+                    <p>&nbsp&nbsp</p>
+                    <select class="form-control" id="inlineFormCustomSelect">
+                        <option selected>Choose</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Incompleted">Incompleted</option>
+                    </select>
+                </div>
+            </center>
+        </div>
+    </form>
+    <center>
+        <div id="taskDisplay"></div>
+    </center>
+</div><br>
+
+<footer>
+    <div class="container">
+        <p>Copyright &#169; To do &#x2713. All Rights Reserved | Contact Us: +91 90000 00000</p>
+    </div>
+</footer>
+
+<script>
+function addingTask() {
+    var inputField = document.getElementById("add_task");
+    var taskValue = inputField.value;
+    var selectField = document.getElementById("inlineFormCustomSelect");
+    var selectValue = selectField.value;
+    var taskDisplay = document.getElementById("taskDisplay");
+    var tasks = [];
+
+    if (taskValue != "") {
+        var taskDiv = document.createElement("div");
+        taskDiv.className = "thumbnail";
+        taskDiv.innerHTML = '<div class="caption" >' + taskValue + ' - ' + selectValue + '<button class="btn btn-primary" type="button" onclick="editTask(this)" id="but"><span class="glyphicon glyphicon-edit"></span></button> <button class="btn btn-primary" type="button" onclick="removeTask(this)" id="but"><span class="glyphicon glyphicon-trash"></span></button></div>';
+        taskDisplay.appendChild(taskDiv);
+
+        inputField.value = "";
+
+        
+        tasks = loadTasksFromLocalStorage();
+        tasks.push({ task: taskValue, status: selectValue });
+
+        saveTasksToLocalStorage(tasks);
+    } else {
+        alert("Task is empty");
+    }
+}
+
+function removeTask(button) {
+
+    var taskDiv = button.parentElement.parentElement;
+    taskDiv.remove();
+
+    var tasks = loadTasksFromLocalStorage();
+    var taskText = taskDiv.querySelector(".caption").textContent.split(' - ')[0];
+    tasks = tasks.filter(task => task.task !== taskText);
+    saveTasksToLocalStorage(tasks);
+}
+
+function loadTasksFromLocalStorage() {
+    var savedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    return savedTasks;
+}
+
+function saveTasksToLocalStorage(tasks) {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function editTask(button) {
+    var taskDiv = button.parentElement;
+    var taskText = taskDiv.textContent.split(' - ')[0];
+
+    var newTaskValue = prompt("Edit Task:", taskText);
+
+    if (newTaskValue !== null) {
+      
+        taskDiv.innerHTML = newTaskValue + ' - ' + taskDiv.textContent.split(' - ')[1] + '<button class="btn btn-primary" type="button" onclick="editTask(this)" id="but"><span class="glyphicon glyphicon-edit"></span></button><button class="btn btn-primary" type="button" onclick="removeTask(this)" id="but"><span class="glyphicon glyphicon-trash"></span></button>';
+     
+        var tasks = loadTasksFromLocalStorage();
+        var index = tasks.findIndex(task => task.task === taskText);
+        tasks[index].task = newTaskValue;
+
+        saveTasksToLocalStorage(tasks);
+    }
+}
+
+
+window.onload = function() {
+
+    var tasks = loadTasksFromLocalStorage();
+    var taskDisplay = document.getElementById("taskDisplay");
+
+    for (var i = 2; i < tasks.length; i++) {
+        var taskDiv = document.createElement("div");
+        taskDiv.className = "thumbnail";
+        taskDiv.innerHTML = '<div class="caption">' + tasks[i].task + ' - ' + tasks[i].status + '<button class="btn btn-primary" type="button" onclick="editTask(this)" id="but"><span class="glyphicon glyphicon-edit"></span></button><button class="btn btn-primary" type="button" onclick="removeTask(this)" id="but"><span class="glyphicon glyphicon-trash"></span></button></div>';
+        taskDisplay.appendChild(taskDiv);
+    }
+}
+
+</script>
+</body>
+</html>
